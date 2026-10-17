@@ -1,0 +1,32 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DomainLayer.Entities
+{
+    public class Product: BaseEntity<int>
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+        public string PictureUrl { get; set; } = string.Empty;
+   
+      
+
+        public int ProductTypeId { get; set; }
+        public ProductType ProductType { get; set; } = null!;
+
+        public int ProductBrandId { get; set; }
+        public ProductBrand ProductBrand { get; set; } = null!;
+
+
+
+
+    }
+
+
+
+
+}

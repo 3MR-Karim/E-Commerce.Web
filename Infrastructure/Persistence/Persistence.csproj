@@ -38,6 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Core\DomainLayer\DomainLayer.csproj" />
     <ProjectReference Include="..\..\Core\ServiceAbstraction\ServiceAbstraction.csproj" />
   </ItemGroup>
 

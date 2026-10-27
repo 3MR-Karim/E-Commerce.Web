@@ -3,7 +3,7 @@ using DomainLayer.Entities;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
 using ServiceAbstraction;
-using ServiceAbstraction.ServiceAbstraction;
+using System.Linq.Expressions;
 
 namespace Persistence.Repositories
 {
@@ -18,11 +18,18 @@ namespace Persistence.Repositories
             _context = context;
         }
 
-        public async Task<IReadOnlyList<TEntity>> GetAllAsync()
+        public async Task<IReadOnlyList<TEntity>> GetAllAsync(
+            params Expression<Func<TEntity, object>>[] includes)
         {
-            return await _context.Set<TEntity>()
-                .AsNoTracking()
-                .ToListAsync();
+            IQueryable<TEntity> query = _context.Set<TEntity>()
+                .AsNoTracking();
+
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task<TEntity?> GetByIdAsync(TKey id)

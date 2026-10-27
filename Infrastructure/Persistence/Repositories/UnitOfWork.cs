@@ -3,7 +3,6 @@ using DomainLayer.Entities;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
 using ServiceAbstraction;
-using ServiceAbstraction.ServiceAbstraction;
 
 namespace Persistence.Repositories
 {

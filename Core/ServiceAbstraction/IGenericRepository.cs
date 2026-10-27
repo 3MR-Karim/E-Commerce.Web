@@ -1,24 +1,15 @@
-﻿using DomainLayer.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using DomainLayer.Entities;
+using System.Linq.Expressions;
 
 namespace ServiceAbstraction
 {
-
-    using DomainLayer.Entities;
-
-    namespace ServiceAbstraction
+    public interface IGenericRepository<TEntity, TKey>
+        where TEntity : BaseEntity<TKey>
     {
-        public interface IGenericRepository<TEntity, TKey>
-            where TEntity : BaseEntity<TKey>
-        {
-            Task<IReadOnlyList<TEntity>> GetAllAsync();
+        Task<IReadOnlyList<TEntity>> GetAllAsync(
+            params Expression<Func<TEntity, object>>[] includes);
 
-            Task<TEntity?> GetByIdAsync(TKey id);
-        }
+        Task<TEntity?> GetByIdAsync(TKey id);
     }
-
 }

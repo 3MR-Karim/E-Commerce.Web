@@ -71,7 +71,11 @@ public static class StoreContextSeed
                     Name = item.Name,
                     Description = item.Description,
                     Price = item.Price,
-                    PictureUrl = item.PictureUrl,
+                    PictureUrl = item.PictureUrl.Replace(
+    "images/products/",
+    "images/",
+    StringComparison.OrdinalIgnoreCase
+),
                     ProductBrandId = brand.Id,
                     ProductTypeId = type.Id
                 });

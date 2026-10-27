@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿
+using AutoMapper;
 using DomainLayer.Entities;
 using ServiceAbstraction;
 using Shared.DataTransferObjects;
@@ -10,7 +11,9 @@ namespace Service.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public ProductService(IUnitOfWork unitOfWork, IMapper mapper)
+        public ProductService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -20,11 +23,12 @@ namespace Service.Services
         {
             var products = await _unitOfWork
                 .GetRepository<Product, int>()
-                .GetAllAsync();
+                .GetAllAsync(
+                    p => p.ProductBrand,
+                    p => p.ProductType
+                );
 
-            var productsDto = _mapper.Map<IReadOnlyList<ProductDto>>(products);
-
-            return productsDto;
+            return _mapper.Map<IReadOnlyList<ProductDto>>(products);
         }
 
         public Task<ProductDto?> GetProductByIdAsync(int id)

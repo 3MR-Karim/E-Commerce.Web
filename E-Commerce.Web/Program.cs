@@ -1,8 +1,14 @@
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Persistence.Data;
 using Persistence.DataSeeding;
-using System.Threading.Tasks;
+using Persistence.Repositories;
+using Presentation.Controllers;
+using ServiceAbstraction;
+using Services;
+using Services.MappingProfiles;
+using ServicesAbstraction;
 
 namespace E_Commerce.Web
 {
@@ -12,50 +18,59 @@ namespace E_Commerce.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // Register Controllers
+            builder.Services
+                .AddControllers()
+                .AddApplicationPart(typeof(ProductsController).Assembly);
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddDbContext<StoreDbContext>(options =>
-      options.UseSqlServer(
-          builder.Configuration.GetConnectionString("DefaultConnection")
-      )
+            // Register AutoMapper and discover ProductProfile
+            builder.Services.AddAutoMapper(
+      cfg => { },
+      typeof(ProductProfile).Assembly
   );
 
+            // Register DbContext
+            builder.Services.AddDbContext<StoreDbContext>(options =>
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnection")
+                )
+            );
 
-
-
+            // Register Unit of Work and Service Manager
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IServiceManager, ServiceManager>();
 
             var app = builder.Build();
 
+            // Seed database
             using (var scope = app.Services.CreateScope())
             {
-                var services = scope.ServiceProvider;
-                var context = services.GetRequiredService<StoreDbContext>();
+                var context = scope.ServiceProvider
+                    .GetRequiredService<StoreDbContext>();
+
                 await StoreContextSeed.SeedAsync(context);
-
-
             }
-            // Configure the HTTP request pipeline.
+
+            // Configure HTTP request pipeline
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
-
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            // Serve static files from wwwroot
+            app.UseStaticFiles();
 
+            app.UseAuthorization();
 
             app.MapControllers();
 
             app.Run();
-
         }
     }
 }

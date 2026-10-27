@@ -1,12 +1,14 @@
 
-using Persistence.Data;
 using Microsoft.EntityFrameworkCore;
+using Persistence.Data;
+using Persistence.DataSeeding;
+using System.Threading.Tasks;
 
 namespace E_Commerce.Web
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -25,14 +27,25 @@ namespace E_Commerce.Web
 
 
 
+
+
             var app = builder.Build();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var context = services.GetRequiredService<StoreDbContext>();
+                await StoreContextSeed.SeedAsync(context);
+
+
+            }
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
 
             app.UseHttpsRedirection();
 
@@ -42,6 +55,7 @@ namespace E_Commerce.Web
             app.MapControllers();
 
             app.Run();
+
         }
     }
 }

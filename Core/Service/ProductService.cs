@@ -1,32 +1,49 @@
-﻿using DomainLayer.Entities;
+﻿
+using AutoMapper;
+using DomainLayer.Entities;
 using ServiceAbstraction;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Shared.DataTransferObjects;
 
-namespace Service
+namespace Service.Services
 {
-
-    internal class ProductService : IProductService
+    public class ProductService : IProductService
     {
-        private readonly IProductRepository _productRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public ProductService(IProductRepository productRepository)
+        public ProductService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper)
         {
-            _productRepository = productRepository;
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
-        public Task<IReadOnlyList<Product>> GetAllProductsAsync()
+        public async Task<IReadOnlyList<ProductDto>> GetAllProductsAsync()
         {
-            return _productRepository.GetAllAsync();
+            var products = await _unitOfWork
+                .GetRepository<Product, int>()
+                .GetAllAsync(
+                    p => p.ProductBrand,
+                    p => p.ProductType
+                );
+
+            return _mapper.Map<IReadOnlyList<ProductDto>>(products);
         }
 
-        public Task<Product?> GetProductByIdAsync(int id)
+        public Task<ProductDto?> GetProductByIdAsync(int id)
         {
-            return _productRepository.GetByIdAsync(id);
+            throw new NotImplementedException();
         }
 
+        public Task<IReadOnlyList<TypeDto>> GetAllTypesAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IReadOnlyList<BrandDto>> GetAllBrandsAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

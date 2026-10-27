@@ -23,6 +23,10 @@ namespace Persistence.Data
 
             modelBuilder.ApplyConfigurationsFromAssembly(
                 typeof(StoreDbContext).Assembly);
+
+            modelBuilder.Entity<Product>().ToTable("Products");
+            modelBuilder.Entity<ProductBrand>().ToTable("ProductBrand");
+            modelBuilder.Entity<ProductType>().ToTable("ProductType");
         }
     }
 }

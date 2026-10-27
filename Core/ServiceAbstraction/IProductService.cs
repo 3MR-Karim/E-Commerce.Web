@@ -1,4 +1,5 @@
 ﻿using DomainLayer.Entities;
+using Shared.DataTransferObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,15 +10,12 @@ namespace ServiceAbstraction
 {
     public interface IProductService
     {
+        Task<IReadOnlyList<ProductDto>> GetAllProductsAsync();
 
+        Task<ProductDto?> GetProductByIdAsync(int id);
 
-        Task<IReadOnlyList<Product>> GetAllProductsAsync();
+        Task<IReadOnlyList<TypeDto>> GetAllTypesAsync();
 
-        Task<Product?> GetProductByIdAsync(int id);
-
-
-
-
-
+        Task<IReadOnlyList<BrandDto>> GetAllBrandsAsync();
     }
 }

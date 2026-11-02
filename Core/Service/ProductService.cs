@@ -1,6 +1,6 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
 using DomainLayer.Entities;
+using DomainLayer.Specifications;
 using ServiceAbstraction;
 using Shared.DataTransferObjects;
 
@@ -19,31 +19,89 @@ namespace Service.Services
             _mapper = mapper;
         }
 
+        // Get All Products
         public async Task<IReadOnlyList<ProductDto>> GetAllProductsAsync()
         {
+            var specification = new ProductSpecifications();
+
             var products = await _unitOfWork
                 .GetRepository<Product, int>()
-                .GetAllAsync(
-                    p => p.ProductBrand,
-                    p => p.ProductType
-                );
+                .GetAllAsync(specification);
 
             return _mapper.Map<IReadOnlyList<ProductDto>>(products);
         }
 
-        public Task<ProductDto?> GetProductByIdAsync(int id)
+        // Get Product By Id
+        public async Task<ProductDto?> GetProductByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var specification = new ProductSpecifications(id);
+
+            var product = await _unitOfWork
+                .GetRepository<Product, int>()
+                .GetByIdAsync(specification);
+
+            return _mapper.Map<ProductDto?>(product);
         }
 
-        public Task<IReadOnlyList<TypeDto>> GetAllTypesAsync()
+        // Get All Types
+        public async Task<IReadOnlyList<TypeDto>> GetAllTypesAsync()
         {
-            throw new NotImplementedException();
+            var types = await _unitOfWork
+                .GetRepository<ProductType, int>()
+                .GetAllAsync();
+
+            return _mapper.Map<IReadOnlyList<TypeDto>>(types);
         }
 
-        public Task<IReadOnlyList<BrandDto>> GetAllBrandsAsync()
+        // Get All Brands
+        public async Task<IReadOnlyList<BrandDto>> GetAllBrandsAsync()
         {
-            throw new NotImplementedException();
+            var brands = await _unitOfWork
+                .GetRepository<ProductBrand, int>()
+                .GetAllAsync();
+
+            return _mapper.Map<IReadOnlyList<BrandDto>>(brands);
+        }
+
+        // Get Products With Filtering, Search, Sorting and Pagination
+        public async Task<PaginatedResult<ProductDto>> GetProductsAsync(
+            ProductQueryParameters parameters)
+        {
+            var pageIndex = Math.Max(1, parameters.PageIndex);
+            var pageSize = Math.Clamp(parameters.PageSize, 1, 50);
+
+            var specification = new ProductSpecifications(
+                parameters.BrandId,
+                parameters.TypeId,
+                parameters.MinPrice,
+                parameters.MaxPrice,
+                parameters.Search,
+                parameters.Sort,
+                pageIndex,
+                pageSize);
+
+            var countSpecification = new ProductCountSpecifications(
+                parameters.BrandId,
+                parameters.TypeId,
+                parameters.MinPrice,
+                parameters.MaxPrice,
+                parameters.Search);
+
+            var repository = _unitOfWork
+                .GetRepository<Product, int>();
+
+            var products = await repository.GetAllAsync(specification);
+
+            var count = await repository.CountAsync(countSpecification);
+
+            var productDtos =
+                _mapper.Map<IReadOnlyList<ProductDto>>(products);
+
+            return new PaginatedResult<ProductDto>(
+                pageIndex,
+                pageSize,
+                count,
+                productDtos);
         }
     }
 }

@@ -1,10 +1,4 @@
-﻿using DomainLayer.Entities;
-using Shared.DataTransferObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Shared.DataTransferObjects;
 
 namespace ServiceAbstraction
 {
@@ -17,5 +11,8 @@ namespace ServiceAbstraction
         Task<IReadOnlyList<TypeDto>> GetAllTypesAsync();
 
         Task<IReadOnlyList<BrandDto>> GetAllBrandsAsync();
+
+        Task<PaginatedResult<ProductDto>> GetProductsAsync(
+            ProductQueryParameters parameters);
     }
 }

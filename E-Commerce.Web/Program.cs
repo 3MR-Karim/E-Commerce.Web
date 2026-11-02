@@ -1,4 +1,5 @@
 
+using DomainLayer.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Persistence.Data;
@@ -9,6 +10,7 @@ using ServiceAbstraction;
 using Services;
 using Services.MappingProfiles;
 using ServicesAbstraction;
+using StackExchange.Redis;
 
 namespace E_Commerce.Web
 {
@@ -38,6 +40,19 @@ namespace E_Commerce.Web
                     builder.Configuration.GetConnectionString("DefaultConnection")
                 )
             );
+            // Register Redis Connection
+            builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+            {
+                var connectionString =
+                    builder.Configuration.GetConnectionString("Redis")
+                    ?? throw new InvalidOperationException("Redis connection string is missing");
+
+                return ConnectionMultiplexer.Connect(connectionString);
+            });
+
+            // Register Basket Repository
+            builder.Services.AddScoped<IBasketRepository, BasketRepository>();
+
 
             // Register Unit of Work and Service Manager
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
